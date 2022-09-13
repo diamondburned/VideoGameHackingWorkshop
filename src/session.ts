@@ -1,5 +1,6 @@
 import { Command } from "/src/common/types.ts";
 import * as ws from "/src/ws.ts";
+import * as wsbroadcast from "/src/wsbroadcast.ts";
 import * as store from "/src/store.ts";
 import * as level from "/src/level.ts";
 import * as levels from "/src/levels/levels.ts";
@@ -7,12 +8,17 @@ import * as levels from "/src/levels/levels.ts";
 export class Session {
     readonly store: store.Storer;
     readonly username: string;
+    readonly broadcaster: wsbroadcast.Broadcaster;
 
     private currentLevel: level.Level | undefined;
 
-    constructor(store: store.Storer, username: string) {
-        this.store = store;
+    constructor(username: string, d: {
+        store: store.Storer;
+        broadcaster: wsbroadcast.Broadcaster;
+    }) {
         this.username = username;
+        this.store = d.store;
+        this.broadcaster = d.broadcaster;
     }
 
     handleCommand(server: ws.Server, cmd: Command) {
@@ -22,8 +28,7 @@ export class Session {
                     type: "HELLO",
                     d: {
                         username: this.username,
-                        nLevels: levels.All.length,
-                        completedLevels: [],
+                        levels: levels.Infos,
                     },
                 });
                 break;
@@ -41,7 +46,7 @@ export class Session {
                     this.currentLevel = undefined;
                 }
 
-                const newLevel = levels.All[cmd.d.level];
+                const newLevel = levels.Levels[cmd.d.level];
                 if (!newLevel) {
                     throw `unknown level ${cmd.d.level}`;
                 }

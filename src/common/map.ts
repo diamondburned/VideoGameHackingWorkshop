@@ -21,8 +21,8 @@ export function AssetPath(id: AssetID): AssetPath {
     return "/public/assets/" + id + ".png";
 }
 
-// Map describes an entire map.
-export class Map {
+// LevelMap describes an entire map of a level.
+export class LevelMap {
     readonly lines: string[];
     readonly raw: RawMap;
     readonly goals: Block[];

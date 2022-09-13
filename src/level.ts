@@ -8,21 +8,22 @@ export interface Session {
 }
 
 // Level describes a level with all its server logic.
-export class Level {
-    readonly map: map.Map;
-    readonly level: number;
+export abstract class Level {
+    static number: number;
+    static level_name: string | undefined;
+    static level_desc: string | undefined;
+
+    abstract readonly session: Session;
+    abstract readonly map: map.LevelMap;
+
     readonly startsAt: number;
-    readonly session: Session;
 
     entities = new Map<Position, entity.Entity>();
 
     private wonAt: number | undefined;
     private tickID: number | undefined;
 
-    constructor(s: Session, map: map.Map, level: number) {
-        this.map = map;
-        this.level = level;
-        this.session = s;
+    constructor() {
         this.startsAt = Date.now();
         this.tickID = setInterval(this.tick, TickDuration);
     }
@@ -36,13 +37,12 @@ export class Level {
 
     // initializeEntity initializes all entities with the given block. newFn is
     // called as the entity constructor for each entity.
-    initializeEntity(block: Block, newFn: (pos: Position) => entity.Entity) {
+    protected initializeEntity(block: Block, newFn: (pos: Position) => entity.Entity) {
         this.map.iterateEntity(block, (pos: Position) => {
             this.entities.set(pos, newFn(pos));
         });
     }
 
-    handleCommand(_server: ws.Server, _cmd: Command) {}
-
-    tick() {}
+    protected handleCommand(_server: ws.Server, _cmd: Command) {}
+    protected tick() {}
 }

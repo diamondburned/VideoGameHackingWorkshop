@@ -137,16 +137,6 @@ export type AssetID = string;
 // AssetPath is a path to an asset.
 export type AssetPath = string;
 
-// Leaderboards describes a leaderboard type. It contains the leaderboards of
-// all levels.
-export type Leaderboards = Record<number, Score[]>;
-
-// Score is a single leaderboard entry for a player.
-export type Score = {
-    username: string;
-    time: Millisecond;
-};
-
 // Event is a union of all Websocket payload types that the server can send to
 // the client.
 export type Event =
@@ -154,9 +144,18 @@ export type Event =
     | WarningEvent
     | LevelJoinedEvent
     | LevelFinishedEvent
+    | PersonalScoresEvent
+    | LeaderboardUpdateEvent
     | EntityMoveEvent
     | { type: "_open" }
     | { type: "_close"; code: number };
+
+// LevelInfo is the info for each level.
+export type LevelInfo = {
+    number: number;
+    name?: string;
+    desc?: string;
+};
 
 // HelloEvent is the first ever event coming from the server. Contains all the
 // data needed.
@@ -166,7 +165,7 @@ export type HelloEvent = {
         username: string;
         // levels contains the list of level numbers. The client is expected to
         // filter out levels that are not in this list.
-        levels: number[];
+        levels: LevelInfo[];
     };
 };
 
@@ -178,6 +177,17 @@ export type WarningEvent = {
     };
 };
 
+// MapDataEvent is emitted to the client to download the map data needed for the
+// level to be rendered. Refer to src/common/map.ts for more information.
+export type MapDataEvent = {
+    readonly type: "MAP_DATA";
+    d: {
+        level: number;
+        raw: RawMap;
+        metadata: MapMetadata;
+    };
+};
+
 // LevelJoinedEvent is sent when the server has acknowledged a JoinCommand.
 export type LevelJoinedEvent = {
     readonly type: "LEVEL_JOINED";
@@ -186,7 +196,7 @@ export type LevelJoinedEvent = {
     };
 };
 
-// VictoryEvent is sent when the player finishes a level.
+// LevelFinishedEvent is sent when the player finishes a level.
 export type LevelFinishedEvent = {
     readonly type: "LEVEL_FINISHED";
     d: {
@@ -194,6 +204,46 @@ export type LevelFinishedEvent = {
         won: boolean;
         time: Millisecond;
     };
+};
+
+// PersonalScoresEvent is usually emitted after HELLO and throughout the
+// session. It is used to update (and replace) existing high scores of the
+// current player.
+export type PersonalScoresEvent = {
+    readonly type: "PERSONAL_SCORES";
+    d: PersonalScore[];
+};
+
+// PersonalScore is a score entry for the current user. It keeps track of the
+// best time for a level.
+export type PersonalScore = {
+    level: number;
+    your_best: Millisecond; // your best time
+    global_best: Millisecond; // other people's best time
+};
+
+// LoaderboardUpdateEvent is emitted throughout the Websocket session when a new
+// player has obtained a new high score. The client is expected to replace the
+// score of whatever is present in the Leaderboards.
+export type LeaderboardUpdateEvent = {
+    readonly type: "LEADERBOARD_UPDATE";
+    d: Leaderboards;
+};
+
+// Leaderboards describes a leaderboard type. It contains the leaderboards of
+// all players.
+export type Leaderboards = LevelLeaderboard[];
+
+// LevelLeaderboard is the leaderboard of a single level.
+export type LevelLeaderboard = {
+    level: number;
+    scores: LevelLeaderboardScore[];
+};
+
+// LevelLeaderboardScore is a single high score entry inside a leaderboard.
+export type LevelLeaderboardScore = {
+    username: string;
+    best_time: Millisecond;
 };
 
 // EntityPositionData describes a position of an entity. The entity is

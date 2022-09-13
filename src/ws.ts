@@ -2,6 +2,8 @@ import { Command, Event } from "/src/common/types.ts";
 import * as validator from "/src/common/types_validator.ts";
 import * as ws from "/src/common/ws.ts";
 
+export * from "/src/common/ws.ts";
+
 // CommandHandler describes an object that can handle commands.
 export interface CommandHandler {
     handleCommand(server: Server, cmd: Command): Promise<void> | void;
