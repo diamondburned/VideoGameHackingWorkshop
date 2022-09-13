@@ -164,8 +164,9 @@ export type HelloEvent = {
     readonly type: "HELLO";
     d: {
         username: string;
-        nLevels: number;
-        completedLevels: number[];
+        // levels contains the list of level numbers. The client is expected to
+        // filter out levels that are not in this list.
+        levels: number[];
     };
 };
 
