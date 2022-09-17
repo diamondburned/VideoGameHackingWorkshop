@@ -48,17 +48,34 @@ body > footer {
   background-color: black;
 }
 
-#game:empty {
+#game:empty,
+#level-menu:empty {
   display: none;
 }
 
-#game + .loading {
+#game-loading {
   display: none;
 }
 
-#game:empty + .loading {
+#level-menu:empty + #game:empty + #game-loading {
   display: block;
   max-width: 200px;
   margin: auto;
   margin-top: 2em;
+}
+
+#level-menu {
+}
+
+#level-menu .level-item h2 > small {
+  font-weight: normal;
+}
+
+#level-menu .level-leaderboard th {
+  font-weight: bold;
+}
+
+#level-menu .level-leaderboard .rank {
+  width: 0;
+  text-align: end;
 }
